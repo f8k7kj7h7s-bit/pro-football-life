@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#101b2c"><title>PRO FOOTBALL LIFE</title>
+<style>
+:root{--bg:#0b1320;--panel:#142238;--panel2:#1b2d46;--line:#2d4260;--txt:#edf4ff;--muted:#9eb1ca;--green:#56d69b;--gold:#f3c96a;--red:#ff8585}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(150deg,#0b1320,#101e32 60%,#0b1320);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+header{padding:20px 16px 14px;border-bottom:1px solid var(--line);background:#0b1320dd;position:sticky;top:0;z-index:5}
+h1{font-size:21px;margin:0;letter-spacing:.08em}header p{margin:5px 0 0;color:var(--muted);font-size:12px}
+main{max-width:980px;margin:auto;padding:14px;display:grid;gap:12px}.panel{background:linear-gradient(145deg,var(--panel),#101c2e);border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:0 8px 24px #0003}
+h2{font-size:16px;margin:0 0 12px}h3{font-size:14px;margin:0 0 8px;color:#d9e8ff}
+.row{display:flex;gap:8px;flex-wrap:wrap}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.statgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+label{font-size:12px;color:var(--muted);display:block;margin-bottom:5px}input,select{width:100%;background:#0b1728;color:var(--txt);border:1px solid var(--line);border-radius:9px;padding:11px;font-size:14px}
+button{background:#244365;color:white;border:1px solid #42648a;border-radius:10px;padding:11px 14px;font-weight:700;font-size:13px;cursor:pointer}
+button.primary{background:linear-gradient(90deg,#167b60,#209a73);border-color:#40c997}button.gold{background:#655020;border-color:#a88b42}button:disabled{opacity:.4}
+.metric{background:#0d192a;border:1px solid #263a55;border-radius:11px;padding:10px}.metric b{font-size:20px;display:block}.metric small{color:var(--muted);font-size:11px}
+.muted{color:var(--muted)}.small{font-size:12px}.pill{display:inline-block;background:#233b58;border-radius:99px;padding:4px 8px;font-size:11px;color:#dceaff;margin:2px}
+.bar{height:7px;background:#263b55;border-radius:99px;overflow:hidden;margin-top:5px}.bar i{display:block;height:100%;background:linear-gradient(90deg,#27a77b,#75e1ac)}
+hr{border:0;border-top:1px solid var(--line);margin:12px 0}.hidden{display:none!important}
+.club{padding:10px;border:1px solid var(--line);border-radius:10px;margin:7px 0;background:#0e1b2d}
+.club strong{font-size:13px}.club p{font-size:11px;color:var(--muted);margin:5px 0}
+.log{max-height:220px;overflow:auto;font-size:12px;line-height:1.65}.log div{border-bottom:1px solid #26364b;padding:5px 0}
+.offer{border:1px solid #8b7438;background:#292515;border-radius:12px;padding:12px;margin:8px 0}
+footer{text-align:center;color:#7187a3;font-size:10px;padding:10px}
+@media(min-width:760px){main{grid-template-columns:1.2fr .8fr}.wide{grid-column:1/-1}.grid.three{grid-template-columns:repeat(3,1fr)}}
+</style>
+</head>
+<body>
+<header><h1>PRO FOOTBALL LIFE</h1><p>選手として歩む、もうひとつのサッカー人生。初期プロトタイプ v0.1</p></header>
+<main>
+<section class="panel wide" id="setup">
+<h2>選手を作成</h2><div class="grid three">
+<div><label>選手名</label><input id="name" value="K. Arai" maxlength="24"></div>
+<div><label>出生国</label><select id="country"><option>日本</option><option>イングランド</option><option>ドイツ</option><option>スペイン</option><option>ブラジル</option><option>フランス</option><option>イタリア</option><option>オランダ</option><option>ポルトガル</option><option>アルゼンチン</option></select></div>
+<div><label>ポジション</label><select id="pos"><option value="FW">FW</option><option value="MF" selected>MF</option><option value="DF">DF</option><option value="GK">GK</option></select></div>
+</div><p class="small muted">6歳・小学校1年生からスタート。全選手の初期才能は同一。成長上限は固定せず、練習・出場経験・環境によって伸び方が変わります。</p>
+<button class="primary" onclick="startGame()">キャリアを開始する</button>
+</section>
+<section class="panel hidden" id="career">
+<h2 id="playerTitle">選手情報</h2>
+<div class="statgrid">
+<div class="metric"><small>年齢</small><b id="age">6</b></div><div class="metric"><small>総合値</small><b id="ovr">25</b></div><div class="metric"><small>市場価値</small><b id="value">€0</b></div>
+<div class="metric"><small>所属</small><b id="clubName" style="font-size:15px">---</b></div><div class="metric"><small>監督評価</small><b id="trust">50</b></div><div class="metric"><small>コンディション</small><b id="condition">100</b></div>
+</div>
+<hr><h3>能力値</h3><div class="grid" id="stats"></div>
+<hr><h3>キャリア状況</h3><div class="row"><span class="pill" id="stage">育成年代</span><span class="pill" id="season">1年目</span><span class="pill" id="record">0試合 0G 0A</span></div>
+</section>
+<section class="panel hidden" id="actions">
+<h2>今月の行動</h2><p class="small muted">月に1つ、重点的に取り組む内容を選択。試合や週イベントは進行時に自動発生します。</p>
+<div class="grid"><div><label>トレーニング</label><select id="training"><option value="shoot">シュート</option><option value="dribble">ドリブル・ボールコントロール</option><option value="pass">パス</option><option value="speed">スピード</option><option value="physical">フィジカル</option><option value="stamina">スタミナ</option><option value="defense">守備</option><option value="rest">休養</option></select></div>
+<div><label>育成環境</label><select id="coach"><option value="none">専属コーチなし</option><option value="normal">一般コーチ (€2,000/月)</option><option value="special">専門コーチ (€8,000/月)</option><option value="elite">エリートコーチ (€25,000/月)</option></select></div></div>
+<div class="row" style="margin-top:10px"><button class="primary" onclick="advanceMonth()">1か月進める</button><button onclick="showHistory()">成績・履歴</button><button onclick="showClubs()">クラブ情報</button></div>
+</section>
+<section class="panel hidden" id="market">
+<h2>移籍市場</h2><div id="offers"><p class="muted small">現時点でオファーはありません。成長と実績に応じてクラブ側から打診されます。</p></div>
+<div class="small muted">移籍成立にはクラブ間合意と本人条件合意の両方が必要です。市場価値と移籍金は別の数値です。</div>
+</section>
+<section class="panel hidden" id="finance">
+<h2>契約・資産</h2><div class="statgrid"><div class="metric"><small>年俸（年額）</small><b id="wage">€0</b></div><div class="metric"><small>累計収入</small><b id="income">€0</b></div><div class="metric"><small>純資産</small><b id="wealth">€0</b></div></div>
+<p class="small muted">移籍金はクラブ間で支払われ、選手本人の収入には含まれません。</p>
+</section>
+<section class="panel wide hidden" id="history">
+<h2>キャリア履歴</h2><div class="log" id="historyLog"></div>
+</section>
+<section class="panel wide hidden" id="clubList">
+<h2>クラブの特徴データベース</h2><p class="small muted">各クラブの育成方針・戦術傾向・獲得選手像をゲーム内のスカウト評価に反映。監督や編成の変化で必要選手像も変動します。</p><div id="clubs"></div>
+</section>
+</main><footer>本作は実在クラブ名を用いた個人向けシミュレーション試作です。クラブ評価はゲーム用の傾向モデルであり、公式評価ではありません。</footer>
+<script>
+const CLUBS=[
+{name:"Liverpool",tier:1,style:"強度・切替・前線からの守備",need:"運動量、スプリント、献身性、前線の連動",fit:{speed:1.18,stamina:1.2,defense:1.08,shoot:1.05},min:78},
+{name:"Bayern Munich",tier:1,style:"主導権・高い位置・攻守の総合力",need:"技術、判断、強度、勝負強さ",fit:{pass:1.15,shoot:1.12,physical:1.08,stamina:1.08},min:79},
+{name:"Manchester City",tier:1,style:"保持・位置取り・技術的な再現性",need:"ボール保持、狭い局面の技術、判断力",fit:{pass:1.25,dribble:1.18,defense:1.05},min:81},
+{name:"Real Madrid",tier:1,style:"個の打開力・勝負所・多様な攻撃",need:"技術、スピード、決定力、大舞台での実績",fit:{dribble:1.2,speed:1.18,shoot:1.15},min:82},
+{name:"Barcelona",tier:1,style:"技術・ポジショナルプレー・連係",need:"パス、ボールコントロール、状況判断",fit:{pass:1.25,dribble:1.16},min:80},
+{name:"Manchester United",tier:1,style:"切替・縦への推進力・個の能力",need:"スピード、攻守の推進力、プレッシャー耐性",fit:{speed:1.18,dribble:1.1,shoot:1.08},min:78},
+{name:"Chelsea",tier:1,style:"若手投資・運動能力・複数ポジション",need:"成長余地、身体能力、適応力",fit:{speed:1.1,physical:1.1,stamina:1.08},min:77},
+{name:"Arsenal",tier:1,style:"連係・保持・前進する守備",need:"技術、戦術理解、複数局面での判断",fit:{pass:1.18,dribble:1.12,defense:1.1},min:79},
+{name:"Inter Milan",tier:1,style:"組織守備・可変システム・効率的な攻撃",need:"戦術理解、対人守備、配球、走力",fit:{defense:1.2,pass:1.12,stamina:1.1},min:78},
+{name:"Paris Saint-Germain",tier:1,style:"個の技術・攻撃力・高い期待値",need:"突破力、決定力、創造性",fit:{dribble:1.2,shoot:1.18,pass:1.08},min:80},
+{name:"Borussia Dortmund",tier:2,style:"若手育成・速い攻撃・強度",need:"伸びしろ、スピード、攻撃参加",fit:{speed:1.18,stamina:1.1,dribble:1.08},min:72},
+{name:"RB Leipzig",tier:2,style:"強度・縦への速さ・若手育成",need:"走力、切替、複数ポジション",fit:{speed:1.2,stamina:1.15,defense:1.08},min:72},
+{name:"Bayer Leverkusen",tier:2,style:"保持と速攻の融合・連動",need:"技術、判断、運動量",fit:{pass:1.12,dribble:1.1,stamina:1.1},min:74},
+{name:"Atletico Madrid",tier:2,style:"組織性・守備強度・勝負強さ",need:"守備意識、献身性、球際、集中力",fit:{defense:1.22,physical:1.12,stamina:1.1},min:74},
+{name:"Juventus",tier:2,style:"守備組織・試合運び・実務能力",need:"判断、守備、安定感",fit:{defense:1.18,pass:1.08,physical:1.08},min:74},
+{name:"AC Milan",tier:2,style:"技術とスピード・伝統的な強度",need:"技術、走力、局面対応",fit:{speed:1.1,dribble:1.1,defense:1.08},min:73},
+{name:"Napoli",tier:2,style:"攻撃的な技術・連動・突破",need:"ドリブル、パス、攻撃センス",fit:{dribble:1.18,pass:1.1,shoot:1.08},min:73},
+{name:"Roma",tier:2,style:"競争力・戦術対応・攻守のバランス",need:"戦術適応、判断、勝負強さ",fit:{pass:1.08,defense:1.1,physical:1.08},min:72},
+{name:"Tottenham",tier:2,style:"前進・ハイテンポ・攻撃的な守備",need:"走力、前進力、切替",fit:{speed:1.15,stamina:1.14,pass:1.06},min:73},
+{name:"Newcastle United",tier:2,style:"運動量・球際・速い攻撃",need:"フィジカル、走力、強度",fit:{physical:1.18,stamina:1.15,defense:1.08},min:73},
+{name:"Aston Villa",tier:2,style:"組織的な前進・速攻・戦術性",need:"判断、スピード、戦術理解",fit:{pass:1.1,speed:1.12,shoot:1.06},min:73},
+{name:"Real Sociedad",tier:3,style:"技術・連係・育成",need:"ボール技術、判断、連動性",fit:{pass:1.16,dribble:1.1},min:69},
+{name:"Benfica",tier:3,style:"若手発掘・育成・欧州への登竜門",need:"成長性、技術、移籍市場での将来性",fit:{dribble:1.1,pass:1.08,speed:1.08},min:68},
+{name:"Porto",tier:3,style:"競争力・育成・欧州カップ対応",need:"強度、戦術理解、勝負強さ",fit:{physical:1.1,defense:1.1,stamina:1.08},min:68},
+{name:"Sporting CP",tier:3,style:"アカデミー育成・技術・前進",need:"技術、判断、成長余地",fit:{pass:1.12,dribble:1.12},min:67},
+{name:"Ajax",tier:3,style:"育成・技術・ポジション理解",need:"技術、判断、複数ポジション適性",fit:{pass:1.2,dribble:1.14},min:67},
+{name:"Feyenoord",tier:3,style:"強度・育成・攻守の連動",need:"走力、技術、献身性",fit:{stamina:1.14,pass:1.08,defense:1.08},min:66},
+{name:"Celtic",tier:3,style:"主導権・攻撃的姿勢・国内競争",need:"攻撃力、運動量、技術",fit:{shoot:1.1,stamina:1.1,dribble:1.08},min:65},
+{name:"Galatasaray",tier:3,style:"勝利への圧力・経験・攻撃力",need:"精神的安定、技術、勝負強さ",fit:{shoot:1.1,physical:1.08,pass:1.06},min:66},
+{name:"Urawa Red Diamonds",tier:3,style:"組織性・強度・大舞台",need:"規律、運動量、守備と攻撃の両立",fit:{stamina:1.12,defense:1.1,physical:1.06},min:61},
+{name:"Kashima Antlers",tier:3,style:"勝負強さ・戦術性・育成",need:"判断、技術、試合運び",fit:{pass:1.1,defense:1.08,shoot:1.05},min:61},
+{name:"Yokohama F. Marinos",tier:3,style:"攻撃的・高い位置・スピード",need:"走力、攻撃参加、技術",fit:{speed:1.14,stamina:1.12,shoot:1.06},min:61},
+{name:"Vissel Kobe",tier:3,style:"技術・経験・試合運び",need:"技術、判断、安定感",fit:{pass:1.12,dribble:1.08,physical:1.05},min:62},
+{name:"Sanfrecce Hiroshima",tier:3,style:"組織的な守備・連動・運動量",need:"戦術理解、走力、守備意識",fit:{defense:1.16,stamina:1.12,pass:1.05},min:60},
+{name:"Brighton",tier:3,style:"若手発掘・技術・戦術適応",need:"技術、判断、伸びしろ",fit:{pass:1.12,dribble:1.1},min:68},
+{name:"Brentford",tier:3,style:"データ活用・セットプレー・効率",need:"役割遂行、強度、空中戦/キック精度",fit:{physical:1.1,shoot:1.05,defense:1.08},min:67}
+];
+const $=id=>document.getElementById(id);
+let G=null;
+const fmt=n=>"€"+Math.round(n).toLocaleString("en-US");
+function startGame(){
+ const name=$("name").value.trim()||"Player";const pos=$("pos").value;
+ G={name,country:$("country").value,pos,age:6,month:0,club:"地元のジュニアチーム",tier:5,ovr:25,trust:50,condition:100,fatigue:0,injury:0,stats:{shoot:25,dribble:25,pass:25,speed:25,physical:25,stamina:25,defense:25},matches:0,goals:0,assists:0,wage:0,income:0,wealth:0,history:[],offers:[],seasonApps:0,seasonGoals:0,seasonAssists:0,shirt:0,contract:0};
+ $("setup").classList.add("hidden");["career","actions","market","finance"].forEach(x=>$(x).classList.remove("hidden"));log("6歳でサッカーを始めた。まずは基礎技術を身につけよう。");render();
+}
+function calcOvr(){let s=G.stats;let keys=G.pos==="FW"?["shoot","dribble","speed","physical","stamina"]:G.pos==="DF"?["defense","physical","speed","pass","stamina"]:G.pos==="GK"?["defense","physical","pass","stamina"]:["pass","dribble","stamina","defense","shoot"];G.ovr=Math.round(keys.reduce((a,k)=>a+s[k],0)/keys.length);}
+function log(t){G.history.unshift("["+G.age+"歳 "+(G.month%12+1)+"月] "+t);if(G.history.length>150)G.history.pop();}
+function render(){
+ calcOvr();$("playerTitle").textContent=G.name+"｜"+G.country+"出身｜"+G.pos;
+ $("age").textContent=G.age+"歳";$("ovr").textContent=G.ovr;$("value").textContent=fmt(marketValue());$("clubName").textContent=G.club;$("trust").textContent=G.trust;$("condition").textContent=G.condition;
+ $("stage").textContent=stage();$("season").textContent=Math.floor(G.month/12)+1+"年目";$("record").textContent=G.matches+"試合 "+G.goals+"G "+G.assists+"A";
+ $("stats").innerHTML=Object.entries(G.stats).map(([k,v])=>`<div><div class="row" style="justify-content:space-between"><span class="small">${({shoot:"決定力",dribble:"ドリブル",pass:"パス",speed:"スピード",physical:"フィジカル",stamina:"スタミナ",defense:"守備"})[k]}</span><b>${Math.round(v)}</b></div><div class="bar"><i style="width:${Math.min(100,v)}%"></i></div></div>`).join("");
+ $("wage").textContent=fmt(G.wage);$("income").textContent=fmt(G.income);$("wealth").textContent=fmt(G.wealth);
+ $("offers").innerHTML=G.offers.length?G.offers.map((o,i)=>`<div class="offer"><strong>${o.club.name}</strong> <span class="pill">Tier ${o.club.tier}</span><p class="small">${o.reason}</p><p class="small">提示年俸：${fmt(o.wage)} / 市場価値：${fmt(marketValue())} / 想定移籍金：${fmt(o.fee)}</p><p class="small">クラブ間交渉：${o.clubOK?"合意":"交渉中"}　本人条件：${o.playerOK?"合意":"未合意"}</p><button class="gold" onclick="negotiate(${i})">条件を交渉する</button> <button onclick="rejectOffer(${i})">断る</button></div>`).join(""):"<p class='muted small'>現時点でオファーはありません。実績・能力・クラブの補強方針が合うと届きます。</p>";
+ $("historyLog").innerHTML=G.history.map(x=>`<div>${x}</div>`).join("");
+}
+function stage(){if(G.age<12)return"ジュニア";if(G.age<15)return"中学生年代";if(G.age<18)return"高校・ユース";if(G.age<23)return"若手プロ";if(G.age<30)return"全盛期";if(G.age<35)return"ベテラン";return"キャリア後期";}
+function marketValue(){if(G.age<16)return 0;if(G.age<18)return Math.max(0,(G.ovr-45)*18000);let leagueFactor=G.tier===1?1.7:G.tier===2?1.35:G.tier===3?1:0.65;let ageFactor=G.age<22?.55:G.age<25?.8:G.age<29?1:G.age<32?.75:G.age<35?.45:.2;let performance=1+Math.min(.4,G.seasonApps/50*.2+G.seasonGoals/30*.12);let injury=G.injury>0?.75:1;return Math.max(0,(G.ovr**2*9000-300000)*leagueFactor*ageFactor*performance*injury);}
+function advanceMonth(){
+ let tr=$("training").value,co=$("coach").value;let cost={none:0,normal:2000,special:8000,elite:25000}[co];G.wealth-=cost;
+ if(tr==="rest"){G.fatigue=Math.max(0,G.fatigue-18);G.condition=Math.min(100,G.condition+15);}
+ else {let boost={none:1,normal:1.08,special:1.18,elite:1.28}[co];let growth=(G.age>=18&&G.age<=24?1.5:G.age<=17?1.25:G.age<=29?1:.65)*boost*(G.condition/100)*(.75+Math.random()*.5);G.stats[tr]=Math.min(150,G.stats[tr]+growth*.55);G.fatigue=Math.min(100,G.fatigue+10);G.condition=Math.max(35,G.condition-5);}
+ if(G.injury>0){G.injury--;G.condition=Math.min(100,G.condition+4);if(G.injury===0)log("負傷から復帰。コンディションを整えていく。");}
+ // youth and pro match cadence
+ let games=G.age<12?1:G.age<18?2:3;
+ for(let i=0;i<games;i++){let fatiguePenalty=G.fatigue>70?0.55:1;let chance=G.age<15?.55:G.age<18?.62:G.age<21?.55:.5;chance*=G.trust/75;chance*=G.condition/100;
+ if(Math.random()<chance&&G.injury===0){let mins=G.age<18?Math.floor(30+Math.random()*61):Math.floor(15+Math.random()*76);G.matches++;G.seasonApps++;let performance=(G.ovr+(Math.random()*20-10))*fatiguePenalty;let goalChance=G.pos==="FW"?.28:G.pos==="MF"?.12:G.pos==="DF"?.035:.005;if(Math.random()<goalChance*performance/75){G.goals++;G.seasonGoals++;}if(Math.random()<(G.pos==="MF"?.18:.08)){G.assists++;G.seasonAssists++;}G.trust=Math.max(20,Math.min(99,G.trust+(performance>G.ovr+3?1:performance<G.ovr-8?-1:0)));}}
+ if(G.fatigue>85&&Math.random()<.13){G.injury=1+Math.floor(Math.random()*3);G.condition=45;log("疲労の蓄積により負傷。しばらく出場機会が減る。");}
+ G.month++;if(G.month%12===0){G.age++;G.fatigue=Math.max(0,G.fatigue-25);G.condition=Math.min(100,G.condition+20);G.seasonApps=0;G.seasonGoals=0;G.seasonAssists=0;log("誕生日を迎え、"+G.age+"歳になった。新シーズン開始。");}
+ // realistic slow market and scouting
+ if(G.age>=15&&G.month%3===0)checkOffers();
+ if(G.age>=18&&G.wage===0&&G.ovr>=55){G.wage=G.ovr*1200;log("育成契約を締結。年俸 "+fmt(G.wage)+"。");}
+ if(G.wage>0){let monthly=G.wage/12;G.income+=monthly;G.wealth+=monthly*.72;}
+ if(G.age>=36&&G.ovr>35){Object.keys(G.stats).forEach(k=>G.stats[k]=Math.max(20,G.stats[k]-.12));}
+ render();
+}
+function checkOffers(){
+ if(G.offers.length>=3||G.age<16)return;
+ let pool=CLUBS.filter(c=>c.tier<=3&&c.name!==G.club&&G.ovr>=c.min+(c.tier===1?Math.max(0,22-(G.age-18)):0));
+ pool=pool.filter(c=>!G.offers.some(o=>o.club.name===c.name));
+ let ranked=pool.map(c=>{let fit=Object.entries(c.fit).reduce((a,[k,w])=>a+G.stats[k]*w,0)/Object.values(c.fit).reduce((a,b)=>a+b,0);let reputation=G.ovr-c.min;let levelPenalty=c.tier===1?17:c.tier===2?8:0;let score=fit*.35+reputation*.65-levelPenalty+(Math.random()*8);return {c,score};}).filter(x=>x.score>G.ovr-10).sort((a,b)=>b.score-a.score);
+ let max=G.age<18?1:2;
+ ranked.slice(0,max).forEach(x=>{let c=x.c;let wage=Math.max(12000,G.ovr*G.ovr*(c.tier===1?130: c.tier===2?85:45));let fee=Math.round(marketValue()*(.9+Math.random()*.45));let clubOK=Math.random()>.2;let playerOK=false;G.offers.push({club:c,wage,fee,clubOK,playerOK,reason:`${c.style}。必要選手像：${c.need}。あなたの能力構成と補強方針が合致。`});log(c.name+"から獲得オファーが届いた。");});
+}
+function negotiate(i){let o=G.offers[i];if(!o)return;let ask=prompt(o.club.name+"との本人条件交渉\n希望年俸（ユーロ）を入力してください。提示額："+Math.round(o.wage));if(ask===null)return;let req=Number(ask);if(!Number.isFinite(req)||req<0){alert("金額を入力してください");return;}o.playerOK=req<=o.wage*1.18;if(!o.clubOK){alert("クラブ間の移籍金交渉が未合意です。");}else if(!o.playerOK){alert("希望年俸がクラブの想定を超えています。条件を調整する必要があります。");}else{if(confirm("クラブ間合意・本人条件の両方が成立しました。"+o.club.name+"へ移籍しますか？")){G.club=o.club.name;G.tier=o.club.tier;G.wage=req;G.contract=3;G.offers=[];log(o.club.name+"へ移籍。新しい背番号を選ぶことができます。");let n=prompt("希望背番号（1〜99）", "10");if(n&&Number(n)>=1&&Number(n)<=99)G.shirt=Number(n);}}render();}
+function rejectOffer(i){G.offers.splice(i,1);render();}
+function showHistory(){$("history").classList.toggle("hidden");}
+function showClubs(){$("clubList").classList.toggle("hidden");$("clubs").innerHTML=CLUBS.map(c=>`<div class="club"><strong>${c.name}</strong> <span class="pill">Tier ${c.tier}</span><p>${c.style}</p><p>獲得したい選手像：${c.need}</p></div>`).join("");}
+</script></body></html>
